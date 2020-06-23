@@ -1,0 +1,16 @@
+<launch>
+        <!-- <arg name="namespace"/>
+
+        <arg name="params"/> -->
+        <arg name="namespace" value="g500" />
+   	    <arg name="params" value="$(find underwater_vehicle_dynamics)/config/dynamics_g500.yaml" />
+
+	<rosparam command="load" file="$(arg params)" />
+
+        <arg name="input_thruster_topic" default="/$(arg namespace)/thrusters_input" />
+        <arg name="output_pose_topic" default="/$(arg namespace)/pose" />
+        <arg name="output_datanavigator_topic" default="/dataNavigator" />
+        <arg name="output_screw_topic" default="/uwsim/joint_state_command" />
+
+	<node name="dynamics_$(arg namespace)" pkg="underwater_vehicle_dynamics" type="dynamics.py" args="$(arg namespace) $(arg input_thruster_topic) $(arg output_pose_topic) $(arg output_datanavigator_topic) $(arg output_screw_topic)" output="screen" respawn="false"/>
+</launch>

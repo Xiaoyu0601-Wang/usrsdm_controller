@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="joy_dev" default="/dev/input/js0" />
+
+  <node name="joy" pkg="joy" type="joy_node" output="screen">
+    <param name="dev" value="$(arg joy_dev)" />
+    <param name="deadzone" value="0.05" />
+  </node>
+
+  <node name="tracking_controller" pkg="underwater_snakerobot_controller" type="pathTrackingController" output="screen">
+    <param name="trajectory" type="string" value="$(find underwater_snakerobot_controller)/trajectory/wayPoints12.txt"/>
+    <param name="outputDataFile" type="string" value="/home/michael/Documents/Octave/USR/swayTest.txt"/>
+    <rosparam command="load" file="$(find underwater_snakerobot_controller)/config/pathTrackingControl.yaml" />
+  </node>
+
+  <node name="hardware_command" pkg="underwater_snakerobot_controller" type="hardwareCommand" output="screen">
+    <rosparam command="load" file="$(find underwater_snakerobot_controller)/config/pathTrackingControl.yaml" />
+  </node>
+
+  <node name="plot" pkg="underwater_snakerobot_controller" type="plot.py" output="screen" respawn="false"/>
+
+  <!-- <node name="plot" pkg="underwater_vehicle_dynamics" type="plot.py" output="screen" respawn="false"/> -->
+
+</launch>

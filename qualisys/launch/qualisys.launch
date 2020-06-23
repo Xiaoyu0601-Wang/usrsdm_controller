@@ -1,0 +1,10 @@
+<launch>
+  <node pkg="qualisys"
+    type="qualisys_node"
+    name="qualisys"
+    output="screen">
+    <param name="server_address" value="192.168.54.200"/>
+    <param name="base_port" value="22222"/>
+    <param name="publish_tf" value="false"/>
+  </node>
+</launch>
