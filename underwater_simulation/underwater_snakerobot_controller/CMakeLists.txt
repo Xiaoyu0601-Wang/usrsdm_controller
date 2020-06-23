@@ -164,7 +164,7 @@ add_executable(pathTrackingControllerSim src/pathTrackingControllerSim.cpp src/d
 target_link_libraries(pathTrackingControllerSim ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp dlib)
 add_dependencies(pathTrackingControllerSim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${OMPL_LIBRARIES})
 
-add_executable(auvTrackingSim src/auvTrackingSim.cpp src/dubins.c src/firstOrderFilter.c src/LowPassFilter.cpp src/reeds_shepp.cpp)
+add_executable(auvTrackingSim src/auvTrackingSim.cpp src/dubins.c src/firstOrderFilter.c src/LowPassFilter.cpp src/reeds_shepp.cpp src/table_printer.cpp)
 target_link_libraries(auvTrackingSim ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp dlib)
 add_dependencies(auvTrackingSim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${OMPL_LIBRARIES})
 

@@ -28,9 +28,11 @@
 #include <Eigen/QR>
 //Dynamixel
 // #include <dynamixel_workbench_msgs/JointCommand.h>
-//dlib
+//Dlib
 #include <dlib/optimization.h>
 #include <dlib/global_optimization.h>
+//Boost
+#include <boost/spirit/include/karma.hpp>
 //Mylib
 // #include "screwDriveController.hpp"
 // #include "serialPort.hpp"
@@ -41,6 +43,7 @@ extern "C" {
 #include "firstOrderFilter.h"
 }
 #include "reeds_shepp.h"
+#include "table_printer.h"
 // #include "reeds_shepp.hpp"
 //Message
 #include "underwater_snakerobot_controller/HardwareCommand.h"
@@ -51,6 +54,8 @@ extern "C" {
 using namespace std;
 using namespace Eigen;
 using namespace dlib;
+namespace karma = boost::spirit::karma;
+using bprinter::TablePrinter;
 // using namespace ReedsSheppStateSpace;
 // ReedsSheppStateSpace reeds_shepp;
 
@@ -61,6 +66,8 @@ Vector3d U_kinematic(0.0,0.0,0.0);  //v_t, w, s_dot
 // LowPassFilter lpf_screwVel1(14.0, 0.01);
 // LowPassFilter lpf_screwVel2(14.0, 0.01);
 // LowPassFilter lpf_jointPos1(14.0, 0.01);
+
+TablePrinter tp(&std::cout);
 
 double get(const ros::NodeHandle& n, const std::string& name)
 {
@@ -214,6 +221,20 @@ public:
         traj_seg_number++;
       }
     }
+    tp.AddColumn("Name", 5);
+    tp.AddColumn("x", 5);
+    tp.AddColumn("y", 5);
+    tp.AddColumn("theta", 5);
+    tp.PrintHeader();
+    tp << "1" << 25 << "Rese" << -0.00000000001337;
+    tp << "2" << 26 << "Too" << 125456789.123456789;
+    tp << "3" << 26 << "Typ" << 1254;
+    tp << "4" << 26 << "Typi" << 1254.36;
+    tp << "5" << 26 << "Too " << -125456789.123456789;
+    tp << "6" << 26 << "Exac" << 125456789;
+    tp << "7" << 26 << "Exa" << -12545678;
+    tp << "8" << 26 << "Exact" << -1254567.8;
+    tp.PrintFooter();
 ///////////////////////////////////////////////////////////
     moCap.pose.pose.orientation.x = 0;
     moCap.pose.pose.orientation.y = 0;
@@ -255,7 +276,7 @@ public:
     cout << " ctrl_frequency: " << ctrl_frequency << "Hz" << endl;
     ROS_INFO("Initialization finished");
 
-    ros::Duration(6.0).sleep();
+    ros::Duration(10.0).sleep();
 
 /////////////////////////////////////////////////////////////////////////////////
     sway_test_path_start[0]=0.0; sway_test_path_start[1]=0.0; sway_test_path_start[2]=0.0;
