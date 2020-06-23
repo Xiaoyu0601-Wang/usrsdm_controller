@@ -106,6 +106,7 @@ public:
     ,lpf_velr(150.0, 0.008)
     ,m_trajectory(trajectory)
     ,traj_seg_number(0)
+    ,no_waypoint(false)
     ,m_outputDataFile(outputDataFile)
     ,joint_angle(0.0)
     ,eta(get(n, "kinematic_controller/eta"))
@@ -169,16 +170,19 @@ public:
     path_end[0]=wayPoint[0]; path_end[1]=wayPoint[1]; path_end[2]=wayPoint[2];s.VFinal=wayPoint[3];
     cout << wayPoint[0] << wayPoint[1] << wayPoint[2] << wayPoint[3] << endl;
 /////////////////////////CLean Up//////////////////////////
-    bool no_waypoint;
     double traj_seg_start[4];
     double traj_seg_end[4];
-    no_waypoint = false;
+    // no_waypoint = false;
     for (int i = 0; i < 4; i++)
     {
       if (!(inFile_trajectory>>traj_seg_start[i]))
       {
         no_waypoint = true;
         break;
+      }
+      else
+      {
+        waypoint_list[traj_seg_number][i] = traj_seg_start[i];
       }
     }
     while(no_waypoint == false)
@@ -190,14 +194,27 @@ public:
           no_waypoint = true;
           break;
         }
+        else
+        {
+          waypoint_list[traj_seg_number+1][i] = traj_seg_end[i];
+        }
       }
-      traj_seg_number++;
-      dubins_init(traj_seg_start, traj_seg_end, dubins_radius,
-                  &traj[0]);
+      if (no_waypoint == false)
+      {
+        dubins_init(traj_seg_start, traj_seg_end, dubins_radius,
+                    &traj[traj_seg_number]);
+        traj_s[traj_seg_number].length = dubins_path_length(&traj[traj_seg_number]);
+        traj_s[traj_seg_number].SetTarget(0.0, traj_s[traj_seg_number].length,
+                                          traj_seg_start[3], traj_seg_end[3],
+                                          traj_s[traj_seg_number].length/average_vel);
+        for (int i = 0; i < 4; i++)
+        {
+          traj_seg_start[i]=traj_seg_end[i];
+        }
+        traj_seg_number++;
+      }
     }
 ///////////////////////////////////////////////////////////
-
-
     moCap.pose.pose.orientation.x = 0;
     moCap.pose.pose.orientation.y = 0;
     moCap.pose.pose.orientation.z = 0;
@@ -303,30 +320,6 @@ private:
 
     return thetaE;
   }
-  /* Thrust allocation cost fuction */
-  // double thrust_allocation_cost_fuction(const column_vector& m)
-  // {
-  //   Vector3d u_act_temp;
-  //   double joint_angle_temp;
-  //   u_act_temp << m(0), m(1), m(2);
-  //   // (0) = m(0);
-  //   // u_act_temp(1) = m(1);
-  //   // u_act_temp(2) = m(2);
-  //   joint_angle_temp = m(3);
-  //
-  //   Vector3d B_temp, M_inv_B_temp;
-  //   B_temp << 1, cos(joint_angle_temp), 0,
-  //             0, sin(joint_angle_temp), 0,
-  //             0,                     0, 1;
-  //   M_inv_B_temp = M_inv*B_temp;
-  //
-  //   Vector3d u_act_bar_tau_temp;
-  //   // u_act_bar_tau_temp = M_inv_B_temp*u_act_temp-bar_tau;
-  //
-  //   // compute cost function and return the result
-  //   return lambda*(u_act_temp.squaredNorm())+u_act_bar_tau_temp.squaredNorm();
-  //   // return lambda*(pow(f1,2) + pow(f2,2) + pow(bar_tau1,2))+;
-  // }
 
   void iteration(const ros::TimerEvent& e)
   {
@@ -928,8 +921,10 @@ private:
   Matrix3d rotWorldToRobot;
 
   trajectory s;
+  trajectory traj_s[10];
   DubinsPath path;
-  double wayPoint_list[10][4];
+  double waypoint_list[10][4];
+  bool no_waypoint;
   DubinsPath traj[10];
   trajectory s_v;
   DubinsPath path_v;
